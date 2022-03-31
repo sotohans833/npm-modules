@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "axios": "^0.26.1"
+  },
+  "name": "hans-npm",
+  "version": "1.0.1",
+  "main": "src/index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Hans Manotas <soto.hans833@gmail.com>",
+  "license": "MIT",
+  "description": "Testing module"
+}
