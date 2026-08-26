@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// A customer account (role CUSTOMER) or a staff account (role ADMIN / TECH).
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  address      String?
+  city         String?
+  zip          String?
+  role         String   @default("CUSTOMER") // CUSTOMER | ADMIN | TECH
+  locale       String   @default("en") // preferred language for notifications
+  planId       String? // active maintenance membership, if any
+  createdAt    DateTime @default(now())
+
+  plan         MaintenancePlan? @relation(fields: [planId], references: [id])
+  equipment    Equipment[]
+  appointments Appointment[]
+  quotes       Quote[]
+  reminders    Reminder[]
+
+  @@index([role])
+}
+
+/// A heating/cooling unit registered by a customer. Powers service history
+/// and the seasonal maintenance reminders.
+model Equipment {
+  id            String    @id @default(cuid())
+  userId        String
+  nickname      String // "Upstairs unit", "Main floor"
+  type          String // AC | FURNACE | HEAT_PUMP | MINI_SPLIT | PACKAGE | WATER_HEATER
+  brand         String?
+  modelNumber   String?
+  serialNumber  String?
+  installYear   Int?
+  tonnage       Float?
+  seer          Float?
+  lastServiceAt DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@index([userId])
+}
+
+/// A booked visit: maintenance, repair, installation estimate or an emergency call.
+model Appointment {
+  id          String   @id @default(cuid())
+  reference   String   @unique
+  userId      String?
+  equipmentId String?
+
+  // Contact snapshot: kept on the appointment so guest bookings work too.
+  name    String
+  email   String
+  phone   String
+  address String
+  city    String
+  zip     String
+
+  serviceType String // MAINTENANCE | REPAIR | INSTALL_ESTIMATE | INDOOR_AIR | ELECTRICAL | DUCTWORK
+  systemType  String? // AC | FURNACE | HEAT_PUMP | ...
+  urgency     String   @default("STANDARD") // STANDARD | URGENT | EMERGENCY
+  date        DateTime
+  timeSlot    String // 08:00-10:00, 10:00-12:00, ...
+  symptoms    String? // JSON array of symptom ids from the diagnostic assistant
+  notes       String?
+  couponCode  String?
+  status      String   @default("REQUESTED") // REQUESTED | CONFIRMED | ASSIGNED | COMPLETED | CANCELLED
+  technician  String?
+  locale      String   @default("en")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  equipment Equipment? @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([status])
+  @@index([userId])
+}
+
+/// A guided estimate request: replace a part, replace a full system, ducts or IAQ.
+model Quote {
+  id        String  @id @default(cuid())
+  reference String  @unique
+  userId    String?
+
+  name    String
+  email   String
+  phone   String
+  address String?
+  city    String?
+  zip     String
+
+  kind        String // PART | SYSTEM | DUCTWORK | INDOOR_AIR
+  answers     String // JSON payload with every wizard answer
+  summary     String // human readable recap, rendered in the admin inbox
+  estimateLow Int
+  estimateHi  Int
+  status      String   @default("NEW") // NEW | REVIEWING | SENT | WON | LOST
+  adminNotes  String?
+  locale      String   @default("en")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([userId])
+}
+
+/// Membership tiers shown on the maintenance plans page.
+model MaintenancePlan {
+  id            String  @id
+  nameEn        String
+  nameEs        String
+  monthlyCents  Int
+  yearlyCents   Int
+  visitsPerYear Int
+  discountPct   Int
+  perksEn       String // JSON array
+  perksEs       String // JSON array
+  highlighted   Boolean @default(false)
+  sortOrder     Int     @default(0)
+
+  users User[]
+}
+
+/// ZIP codes inside the service area, used by the coverage checker.
+model ServiceZip {
+  zip      String  @id
+  city     String
+  county   String?
+  feeCents Int     @default(0) // trip surcharge for outer-ring ZIPs
+}
+
+/// Seasonal promotions surfaced on the site and validated at booking time.
+model Coupon {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  titleEn      String
+  titleEs      String
+  descriptionEn String
+  descriptionEs String
+  amountCents  Int? // fixed discount
+  percentOff   Int? // or percentage discount
+  appliesTo    String    @default("ANY") // ANY | MAINTENANCE | REPAIR | INSTALL_ESTIMATE
+  expiresAt    DateTime?
+  active       Boolean   @default(true)
+}
+
+/// Field technicians, for assignment in the admin inbox.
+model Technician {
+  id           String  @id @default(cuid())
+  name         String
+  skills       String // JSON array: HVAC, ELECTRICAL, IAQ
+  active       Boolean @default(true)
+}
+
+/// Seasonal maintenance reminder shown in the customer portal.
+model Reminder {
+  id        String   @id @default(cuid())
+  userId    String
+  titleEn   String
+  titleEs   String
+  dueAt     DateTime
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Newsletter / seasonal tips signups from the footer.
+model Lead {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("footer")
+  locale    String   @default("en")
+  createdAt DateTime @default(now())
+}
