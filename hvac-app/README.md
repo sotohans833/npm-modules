@@ -98,6 +98,29 @@ esa— pasa a modo real sin tocar código.
 | Twilio | `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` + `TWILIO_FROM_NUMBER` | SMS de confirmación |
 | Stripe | `STRIPE_SECRET_KEY` | Cobro de membresías y anticipos |
 | Google Maps | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Mapa embebido (hay respaldo sin llave) |
+| Google Places | `GOOGLE_PLACES_API_KEY` + `GOOGLE_PLACE_ID` | Reseñas de Google en vivo |
+
+### Reseñas
+
+`src/content/reviews.ts` tiene seis reseñas reales transcritas del perfil de
+Google de la empresa. Son el **respaldo**: al configurar `GOOGLE_PLACES_API_KEY`
+y `GOOGLE_PLACE_ID`, la home trae las reseñas actuales directamente de la API de
+Places y se mantienen solas.
+
+Tres detalles que conviene saber antes de tocar `src/lib/reviews.ts`:
+
+- La API de Places devuelve **máximo cinco reseñas** por lugar y no tiene
+  paginación. Para el feed completo hace falta una plataforma de reputación de
+  pago (Birdeye, Podium, GatherUp).
+- Los términos de Google exigen mostrar las reseñas con atribución y no
+  almacenarlas indefinidamente. Por eso el `revalidate` es de 12 horas — no lo
+  suba a días.
+- Donde Google cortó el texto con "… Más", la transcripción se detiene en el
+  mismo punto y la tarjeta muestra puntos suspensivos con enlace a la reseña
+  completa. Nadie debe inventar el final.
+
+Para obtener el `GOOGLE_PLACE_ID` use el
+[Place ID Finder](https://developers.google.com/maps/documentation/places/web-service/place-id).
 
 Los datos de la empresa (teléfonos, dirección, correo) también salen de
 variables de entorno, en `src/lib/company.ts`.
@@ -149,18 +172,37 @@ estado en el servidor. Las contraseñas usan bcrypt. Roles `CUSTOMER` / `ADMIN`.
 
 ## Antes de salir a producción
 
-1. **Reseñas** — `src/content/reviews.ts` trae textos marcados como
-   *placeholder*. Reemplácelos por reseñas reales (con permiso) o conéctelos a
-   la API de Google Places. Publicar testimonios inventados es un problema
-   legal y de confianza.
+1. **Precios** — las tablas de `src/lib/pricing.ts`, los planes de
+   `prisma/seed.mjs` y los precios visibles de `src/i18n/*.ts` están calibrados
+   contra **tarifas publicadas de la competencia** en Raleigh–Durham (2026), no
+   contra el tarifario de la empresa. Sirven para que un cliente que compara
+   tres cotizaciones vea algo verosímil, pero hay que reemplazarlos por el libro
+   de precios real. El encabezado de `pricing.ts` documenta cada rango de
+   referencia y su fuente para que la actualización sea directa.
+
+   Referencia usada (mercado 2026, área del Triángulo):
+
+   | Concepto | Mercado | En la app |
+   | --- | --- | --- |
+   | Visita de diagnóstico | $75 – $200 | $89 |
+   | Mantenimiento (tune-up) | $100 – $250 | $119 |
+   | Plan anual de mantenimiento | $150 – $500 | $169 / $289 / $449 |
+   | Capacitor instalado | $250 – $400 | $250 – $325 |
+   | Motor de ventilador | $800 – $1,500 | $925 – $1,300 |
+   | Serpentín evaporador | $700 – $1,500 | $1,025 – $1,425 |
+   | Compresor | hasta $2,300 | $1,775 – $2,475 |
+   | Bomba de calor (3 ton) | $5,500 – $8,000 | $5,975 – $7,650 |
+   | AC + calefactor a gas | $10,000 – $14,500 | $10,475 – $13,400 |
+   | Ductos, casa media | $2,000 – $5,000 | $3,450 – $4,600 |
+   | Deshumidificador | $1,500 – $3,500 | $2,150 – $2,700 |
+
 2. **Números de licencia** — `src/lib/company.ts` dice "Licensed & insured in
    North Carolina" como marcador; ponga los números de licencia HVAC y eléctrica
    reales de Carolina del Norte.
-3. **Precios** — las tablas de `src/lib/pricing.ts` son rangos típicos del área
-   del Triángulo, no el tarifario de la empresa. Ajústelas al libro de precios
-   real antes de mostrarlas a clientes.
-4. **Términos de financiamiento** — las tasas y plazos de `/financing` son
+3. **Términos de financiamiento** — las tasas y plazos de `/financing` son
    ilustrativos; deben venir del aliado financiero real.
-5. **`SESSION_SECRET`** — genere uno con `openssl rand -base64 32`.
-6. **Área de servicio** — la lista de códigos postales de `prisma/seed.mjs` es
+4. **`SESSION_SECRET`** — genere uno con `openssl rand -base64 32`.
+5. **Área de servicio** — la lista de códigos postales de `prisma/seed.mjs` es
    aproximada; confírmela contra las rutas reales.
+6. **Reseñas** — conecte `GOOGLE_PLACES_API_KEY` y `GOOGLE_PLACE_ID` para que
+   se actualicen solas (ver arriba).

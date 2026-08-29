@@ -95,7 +95,7 @@ export const es: Dictionary = {
 
     servicesTitle: "Lo que hacemos",
     servicesSubtitle:
-      "Residencial y comercial ligero, desde un mantenimiento de $89 hasta el cambio completo del sistema.",
+      "Residencial y comercial ligero, desde un mantenimiento de $119 hasta el cambio completo del sistema.",
 
     whyTitle: "Por qué los vecinos nos vuelven a llamar",
     whyItems: [
@@ -141,6 +141,8 @@ export const es: Dictionary = {
 
     reviewsTitle: "Lo que dicen los clientes",
     reviewsSubtitle: "{rating} de promedio en {count} reseñas de Google.",
+    reviewsReadFull: "Leer completa",
+    reviewsSeeOnGoogle: "Ver todas las reseñas en Google",
 
     brandsTitle: "Marcas que instalamos y reparamos",
     brandsBody:
@@ -240,7 +242,7 @@ export const es: Dictionary = {
         icon: "leaf",
         title: "Calidad del aire interior",
         summary: "Filtración, tratamiento UV, control de humedad y ventilación para los veranos de Carolina.",
-        price: "Desde $720 instalado",
+        price: "Desde $650 instalado",
         includes: [
           "Filtración de medio para toda la casa y lámparas UV",
           "Humidificadores y deshumidificadores dimensionados para la vivienda",

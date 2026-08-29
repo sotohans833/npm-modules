@@ -87,7 +87,7 @@ export const en = {
     statsWarrantyValue: "2 years",
 
     servicesTitle: "What we do",
-    servicesSubtitle: "Residential and light commercial, from a $89 tune-up to a full system changeout.",
+    servicesSubtitle: "Residential and light commercial, from a $119 tune-up to a full system changeout.",
 
     whyTitle: "Why neighbors keep calling us back",
     whyItems: [
@@ -133,6 +133,8 @@ export const en = {
 
     reviewsTitle: "What customers say",
     reviewsSubtitle: "{rating} average across {count} Google reviews.",
+    reviewsReadFull: "Read in full",
+    reviewsSeeOnGoogle: "See all reviews on Google",
 
     brandsTitle: "Brands we install and service",
     brandsBody:
@@ -232,7 +234,7 @@ export const en = {
         icon: "leaf",
         title: "Indoor air quality",
         summary: "Filtration, UV treatment, humidity control and ventilation for Carolina summers.",
-        price: "From $720 installed",
+        price: "From $650 installed",
         includes: [
           "Whole-home media filtration and UV lamps",
           "Humidifiers and dehumidifiers sized to the house",

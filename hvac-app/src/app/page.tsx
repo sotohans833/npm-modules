@@ -6,8 +6,8 @@ import { ButtonLink, Card, Section, SectionHeading, Stars } from "@/components/u
 import { ServiceIcon, Check, ChevronRight, Phone, Sparkle, Stethoscope, Calculator, Gauge } from "@/components/icons";
 import { ZipChecker } from "@/components/ZipChecker";
 import { FaqList } from "@/components/Faq";
+import { Reviews } from "@/components/Reviews";
 import { company, telHref } from "@/lib/company";
-import { SAMPLE_REVIEWS } from "@/content/reviews";
 
 const BRANDS = ["Carrier", "Bryant", "Trane", "Lennox", "Rheem", "Goodman", "American Standard", "Mitsubishi"];
 
@@ -210,34 +210,7 @@ export default function HomePage() {
 
       {/* ------------------------------------------------------------- Reviews */}
       <Section className="bg-slate-50">
-        <SectionHeading
-          title={t("home.reviewsTitle")}
-          subtitle={t("home.reviewsSubtitle", { rating: company.rating, count: company.reviewCount })}
-        />
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {SAMPLE_REVIEWS.map((review) => (
-            <Card key={review.id} className="flex flex-col">
-              <Stars rating={review.rating} />
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">“{review[locale]}”</p>
-              <div className="mt-4 border-t border-slate-100 pt-3 text-xs text-ink-faint">
-                <p className="font-semibold text-ink">{review.author}</p>
-                <p>
-                  {review.service} · {review.city} · {review.source}
-                </p>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <p className="mt-6 text-center">
-          <a
-            href={company.social.google}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm font-semibold text-heat-600 hover:text-heat-700"
-          >
-            {t("common.viewAll")} →
-          </a>
-        </p>
+        <Reviews limit={6} />
       </Section>
 
       {/* -------------------------------------------------------------- Brands */}

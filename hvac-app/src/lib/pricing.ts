@@ -3,9 +3,35 @@
  * the API route (authoritative recalculation before the quote is stored), so a
  * tampered client payload can never change the recorded price.
  *
- * Every number is a Triangle-area ballpark for planning only; the on-site
- * inspection is what produces the binding price. Adjust the tables below to
- * match the company's real price book.
+ * ---------------------------------------------------------------------------
+ * PLACEHOLDER PRICING — calibrated to published market rates, not to the
+ * company's own price book. Swap these tables for the real one before launch.
+ * ---------------------------------------------------------------------------
+ *
+ * The numbers below are midpoints benchmarked in 2026 against what other
+ * contractors publish for the Raleigh–Durham market, so a customer comparing
+ * three quotes sees something plausible rather than an invented figure:
+ *
+ *   Diagnostic visit ....... $75–$200 (peak season $75–$150)
+ *   AC tune-up ............. $125–$250 · furnace/heat pump $100–$200
+ *   Typical repair ......... $150–$650 · Raleigh average $365
+ *   Capacitor .............. $250–$400 installed
+ *   Evaporator coil ........ $700–$1,500
+ *   Blower motor ........... $800–$1,500 (PSC vs variable-speed ECM)
+ *   Compressor ............. up to $2,300
+ *   Heat pump replacement .. $4,500–$10,000, typical $5,500–$8,000
+ *   AC + furnace combined .. $10,000–$14,500
+ *   Heat pump + air handler  $9,000–$13,000
+ *   Duct replacement (NC) .. $1,200–$7,000, most homes $2,000–$5,000
+ *   Whole-home purifier .... $1,000–$3,000 installed · UV lamp $300–$1,000
+ *   Whole-home dehumidifier  $1,500–$3,500 installed
+ *   Durham permit .......... $65–$150 (folded into the base prices)
+ *
+ * Sources: Angi, HVAC.com, HomeGuide, HomeAdvisor and local contractor
+ * pricing guides for Raleigh, Durham and North Carolina, retrieved 2026.
+ *
+ * Every quote is still a ballpark for planning only; the on-site inspection is
+ * what produces the binding price.
  */
 
 export type QuoteKind = "PART" | "SYSTEM" | "DUCTWORK" | "INDOOR_AIR";
@@ -24,21 +50,23 @@ const spread = (mid: number, lowPct = 0.88, highPct = 1.14): Range => ({
 /* -------------------------------------------------------------------------- */
 
 export const PARTS = {
-  CAPACITOR: { mid: 245, labourHours: 1 },
-  CONTACTOR: { mid: 285, labourHours: 1 },
-  BLOWER_MOTOR: { mid: 850, labourHours: 3 },
+  CAPACITOR: { mid: 285, labourHours: 1 },
+  CONTACTOR: { mid: 300, labourHours: 1 },
+  BLOWER_MOTOR: { mid: 1100, labourHours: 3 },
   CONDENSER_FAN_MOTOR: { mid: 650, labourHours: 2 },
-  COMPRESSOR: { mid: 2300, labourHours: 6 },
-  EVAPORATOR_COIL: { mid: 1950, labourHours: 5 },
-  CONDENSER_COIL: { mid: 2100, labourHours: 5 },
+  COMPRESSOR: { mid: 2100, labourHours: 6 },
+  EVAPORATOR_COIL: { mid: 1200, labourHours: 5 },
+  CONDENSER_COIL: { mid: 1400, labourHours: 5 },
   CONTROL_BOARD: { mid: 640, labourHours: 2 },
   THERMOSTAT: { mid: 430, labourHours: 1 },
   IGNITOR: { mid: 265, labourHours: 1 },
   FLAME_SENSOR: { mid: 235, labourHours: 1 },
   HEAT_EXCHANGER: { mid: 2450, labourHours: 7 },
   TXV_VALVE: { mid: 790, labourHours: 3 },
-  REFRIGERANT_LEAK: { mid: 1050, labourHours: 4 },
-  DRAIN_PUMP: { mid: 295, labourHours: 1 },
+  // Finding and sealing the leak, then recharging — a recharge on its own runs
+  // $150–$400 and rarely solves anything for more than a season.
+  REFRIGERANT_LEAK: { mid: 900, labourHours: 4 },
+  DRAIN_PUMP: { mid: 250, labourHours: 1 },
 } as const;
 
 export type PartId = keyof typeof PARTS;
@@ -69,13 +97,14 @@ export function estimatePart(input: PartInput): Range {
 /* Full system replacement                                                     */
 /* -------------------------------------------------------------------------- */
 
+/** Base covers a 2-ton system including permits, haul-away and start-up. */
 export const SYSTEM_TYPES = {
-  AC_ONLY: { base: 4400, perTon: 900 },
-  HEAT_PUMP: { base: 6200, perTon: 1100 },
-  FURNACE_AC: { base: 8600, perTon: 1200 },
-  DUAL_FUEL: { base: 9800, perTon: 1250 },
+  AC_ONLY: { base: 4200, perTon: 850 },
+  HEAT_PUMP: { base: 5600, perTon: 1050 },
+  FURNACE_AC: { base: 8400, perTon: 1150 },
+  DUAL_FUEL: { base: 9600, perTon: 1200 },
   MINI_SPLIT: { base: 3400, perTon: 1400 },
-  PACKAGE_UNIT: { base: 7200, perTon: 1200 },
+  PACKAGE_UNIT: { base: 7000, perTon: 1150 },
 } as const;
 
 export type SystemTypeId = keyof typeof SYSTEM_TYPES;
@@ -98,9 +127,9 @@ export type BrandTierId = keyof typeof BRAND_TIERS;
 
 export const DUCT_CONDITIONS = {
   GOOD: 0,
-  MINOR_REPAIR: 950,
-  PARTIAL_REPLACE: 3200,
-  FULL_REPLACE: 6400,
+  MINOR_REPAIR: 850,
+  PARTIAL_REPLACE: 2400,
+  FULL_REPLACE: 4800,
 } as const;
 
 export type DuctConditionId = keyof typeof DUCT_CONDITIONS;
@@ -149,8 +178,10 @@ export type DuctworkInput = {
 
 export function estimateDuctwork(input: DuctworkInput): Range {
   const sqft = Math.max(600, Math.min(6000, input.squareFeet));
-  const perSqft = { SEAL: 1.15, REPAIR: 2.1, REPLACE: 4.6 }[input.scope];
-  let mid = 650 + sqft * perSqft;
+  // Tuned so a 1,200 sq ft home lands near $2,700 and a 1,800 sq ft home near
+  // $4,000 on a full replacement, matching the published NC bands.
+  const perSqft = { SEAL: 0.8, REPAIR: 1.05, REPLACE: 1.95 }[input.scope];
+  let mid = 450 + sqft * perSqft;
   if (input.returns) mid += Math.min(input.returns, 6) * 450;
   return spread(mid, 0.87, 1.16);
 }
@@ -160,9 +191,9 @@ export function estimateDuctwork(input: DuctworkInput): Range {
 /* -------------------------------------------------------------------------- */
 
 export const IAQ_PRODUCTS = {
-  MEDIA_FILTER: 720,
-  UV_LAMP: 890,
-  AIR_PURIFIER: 1450,
+  MEDIA_FILTER: 650,
+  UV_LAMP: 650,
+  AIR_PURIFIER: 1650,
   WHOLE_HOME_HUMIDIFIER: 1150,
   DEHUMIDIFIER: 2400,
   ERV: 2900,

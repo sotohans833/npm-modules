@@ -63,13 +63,17 @@ async function main() {
   }
 
   // --- Maintenance plans ---------------------------------------------------
+  // Benchmarked against Raleigh-area competitors in 2026: annual agreements
+  // there run $150-$500, with one local plan at $189 for the first system,
+  // two visits, priority scheduling and 10% off repairs. These sit just under
+  // that. Replace with the company's real plan pricing before launch.
   const plans = [
     {
       id: "comfort",
       nameEn: "Comfort Club",
       nameEs: "Club Confort",
-      monthlyCents: 1499,
-      yearlyCents: 15900,
+      monthlyCents: 1599,
+      yearlyCents: 16900,
       visitsPerYear: 2,
       discountPct: 10,
       sortOrder: 1,
@@ -90,8 +94,8 @@ async function main() {
       id: "comfort-plus",
       nameEn: "Comfort Club Plus",
       nameEs: "Club Confort Plus",
-      monthlyCents: 2499,
-      yearlyCents: 26900,
+      monthlyCents: 2699,
+      yearlyCents: 28900,
       visitsPerYear: 2,
       discountPct: 15,
       highlighted: true,
@@ -115,8 +119,8 @@ async function main() {
       id: "total-care",
       nameEn: "Total Care",
       nameEs: "Cuidado Total",
-      monthlyCents: 3999,
-      yearlyCents: 42900,
+      monthlyCents: 4199,
+      yearlyCents: 44900,
       visitsPerYear: 3,
       discountPct: 20,
       sortOrder: 3,
