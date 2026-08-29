@@ -10,12 +10,17 @@ import { ChevronDown, Menu, Phone, User, X } from "./icons";
 import { company, telHref } from "@/lib/company";
 import type { SessionUser } from "@/lib/auth";
 
+/**
+ * `key` is the full label used in the mobile sheet, where there is room for it;
+ * `shortKey` is the compact one for the desktop bar, which otherwise wraps onto
+ * two lines — badly in Spanish, where "Planes de mantenimiento" is 25 chars.
+ */
 const PRIMARY = [
   { href: "/services", key: "nav.services" },
-  { href: "/plans", key: "nav.plans" },
+  { href: "/plans", key: "nav.plans", shortKey: "nav.plansShort" },
   { href: "/financing", key: "nav.financing" },
   { href: "/tools", key: "nav.tools" },
-  { href: "/blog", key: "nav.blog" },
+  { href: "/blog", key: "nav.blog", shortKey: "nav.blogShort" },
   { href: "/about", key: "nav.about" },
   { href: "/contact", key: "nav.contact" },
 ];
@@ -77,13 +82,13 @@ export function Header({ user }: { user: SessionUser | null }) {
                 key={item.href}
                 href={item.href}
                 className={cx(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
                   pathname.startsWith(item.href)
                     ? "bg-slate-100 text-ink"
                     : "text-ink-soft hover:bg-slate-50 hover:text-ink",
                 )}
               >
-                {t(item.key)}
+                {t(item.shortKey ?? item.key)}
               </Link>
             ))}
           </nav>
@@ -124,15 +129,17 @@ export function Header({ user }: { user: SessionUser | null }) {
             ) : (
               <Link
                 href="/login"
-                className="rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink"
+                className="whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-medium text-ink-soft hover:text-ink"
               >
                 {t("nav.login")}
               </Link>
             )}
-            <ButtonLink href="/quote" variant="outline">
+            <ButtonLink href="/quote" variant="outline" className="whitespace-nowrap">
               {t("nav.quote")}
             </ButtonLink>
-            <ButtonLink href="/book">{t("nav.book")}</ButtonLink>
+            <ButtonLink href="/book" className="whitespace-nowrap">
+              {t("nav.book")}
+            </ButtonLink>
           </div>
 
           <button

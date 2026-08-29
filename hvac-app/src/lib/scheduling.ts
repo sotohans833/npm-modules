@@ -31,6 +31,47 @@ export function isBookableDate(date: Date, today = new Date()): boolean {
   return target.getDay() !== 0;
 }
 
+/** Earliest month the calendar may show — the one holding the first open day. */
+export function firstBookableMonth(today = new Date()): Date {
+  const cursor = startOfDay(today);
+
+  for (let offset = 0; offset <= BOOKING_HORIZON_DAYS; offset++) {
+    const candidate = new Date(cursor);
+    candidate.setDate(candidate.getDate() + offset);
+    if (isBookableDate(candidate, today)) {
+      return new Date(candidate.getFullYear(), candidate.getMonth(), 1);
+    }
+  }
+
+  return new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+}
+
+/** Bookable days left in the month `date` falls in, counting from today. */
+function bookableDaysInMonth(date: Date, today: Date): number {
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  let count = 0;
+
+  for (let day = 1; day <= lastDay; day++) {
+    if (isBookableDate(new Date(date.getFullYear(), date.getMonth(), day), today)) count++;
+  }
+  return count;
+}
+
+/**
+ * The month the calendar should *open* on.
+ *
+ * Late in a month there may be only a day or two left open, and a grid where
+ * almost every cell is greyed out reads as "they have no availability" rather
+ * than "click the arrow". When that happens, open on the following month
+ * instead — the back arrow still reaches the earlier days.
+ */
+export function preferredBookingMonth(today = new Date()): Date {
+  const first = firstBookableMonth(today);
+  if (bookableDaysInMonth(first, today) > 2) return first;
+
+  return new Date(first.getFullYear(), first.getMonth() + 1, 1);
+}
+
 export function startOfDay(date: Date) {
   const copy = new Date(date);
   copy.setHours(0, 0, 0, 0);

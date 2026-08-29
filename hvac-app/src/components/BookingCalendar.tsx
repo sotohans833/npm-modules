@@ -7,6 +7,8 @@ import { ChevronRight } from "./icons";
 import {
   BOOKING_HORIZON_DAYS,
   TIME_SLOTS,
+  firstBookableMonth,
+  preferredBookingMonth,
   isBookableDate,
   monthGrid,
   toDateKey,
@@ -32,7 +34,7 @@ export function BookingCalendar({
 }) {
   const { t, locale } = useLanguage();
   const today = useMemo(() => new Date(), []);
-  const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [cursor, setCursor] = useState(() => preferredBookingMonth(today));
   const [availability, setAvailability] = useState<Availability>({});
   const [loading, setLoading] = useState(true);
 
@@ -60,7 +62,8 @@ export function BookingCalendar({
     year: "numeric",
   }).format(cursor);
 
-  const canGoBack = cursor > new Date(today.getFullYear(), today.getMonth(), 1);
+  // Never let the arrows walk back into a month with nothing bookable in it.
+  const canGoBack = cursor > firstBookableMonth(today);
   const canGoForward = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1) <= horizon;
 
   const slotsForSelected = selectedDate ? availability[selectedDate] : undefined;

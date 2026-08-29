@@ -59,6 +59,9 @@ export const en = {
     logout: "Sign out",
     language: "Español",
     menu: "Menu",
+    // Short forms for the top nav, where the full labels wrap onto two lines.
+    plansShort: "Plans",
+    blogShort: "Tips",
   },
 
   topbar: {

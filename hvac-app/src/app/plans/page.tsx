@@ -140,7 +140,7 @@ export default function PlansPage() {
                 <ul className="mt-6 flex-1 space-y-3">
                   {perks.map((perk) => (
                     <li key={perk} className="flex items-start gap-2.5 text-sm leading-relaxed text-ink-soft">
-                      <Check className="mt-0.5 h-4.5 w-4.5 shrink-0 text-emerald-600" />
+                      <Check className="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600" />
                       {perk}
                     </li>
                   ))}

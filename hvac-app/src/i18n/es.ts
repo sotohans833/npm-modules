@@ -66,6 +66,8 @@ export const es: Dictionary = {
     logout: "Cerrar sesión",
     language: "English",
     menu: "Menú",
+    plansShort: "Planes",
+    blogShort: "Consejos",
   },
 
   topbar: {

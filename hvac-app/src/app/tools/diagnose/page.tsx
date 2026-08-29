@@ -111,7 +111,7 @@ export default function DiagnosePage() {
                   >
                     <span
                       className={cx(
-                        "mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded border",
+                        "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border",
                         active ? "border-heat-500 bg-heat-500 text-white" : "border-slate-300",
                       )}
                     >
