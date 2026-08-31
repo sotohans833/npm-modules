@@ -21,7 +21,6 @@ Compruébelo con `node -v`.
 cd hvac-app
 npm install
 cp .env.example .env      # ajuste SESSION_SECRET antes de producción
-npm run setup             # prisma generate + db push + datos de ejemplo
 npm run dev               # http://localhost:3000
 ```
 
@@ -31,13 +30,26 @@ npm run dev               # http://localhost:3000
 cd hvac-app
 npm install
 copy .env.example .env
-npm run setup
 npm run dev
 ```
+
+Son tres comandos. `npm run dev` se encarga solo del resto: antes de arrancar
+genera el cliente de Prisma, crea la base de datos y carga los datos de ejemplo
+(el script `predev`). No hay un paso de preparación que se pueda olvidar.
 
 > Si ya está dentro de `hvac-app`, omita el primer `cd`.
 > Todas las dependencias están fijadas a versiones exactas, así que la
 > instalación es idéntica en cualquier máquina.
+>
+> `npm run setup` sigue existiendo por si quiere preparar la base sin arrancar
+> el servidor; ya no es obligatorio.
+
+### Verla desde el celular
+
+`npm run dev` imprime dos direcciones: `Local` y `Network`. Abra la de
+**Network** (algo como `http://192.168.1.220:3000`) en el navegador del
+teléfono, conectado al mismo Wi-Fi. Las redes privadas ya están permitidas en
+`next.config.mjs`.
 
 ### Cuentas de demostración
 
