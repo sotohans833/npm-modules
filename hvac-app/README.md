@@ -12,6 +12,11 @@ Durham, NC 27703.
 
 ## Puesta en marcha
 
+Requiere **Node.js 20.9 o superior** ([nodejs.org](https://nodejs.org), versión LTS).
+Compruébelo con `node -v`.
+
+**macOS / Linux**
+
 ```bash
 cd hvac-app
 npm install
@@ -19,6 +24,20 @@ cp .env.example .env      # ajuste SESSION_SECRET antes de producción
 npm run setup             # prisma generate + db push + datos de ejemplo
 npm run dev               # http://localhost:3000
 ```
+
+**Windows** (símbolo del sistema o PowerShell) — igual, salvo el copiado:
+
+```bat
+cd hvac-app
+npm install
+copy .env.example .env
+npm run setup
+npm run dev
+```
+
+> Si ya está dentro de `hvac-app`, omita el primer `cd`.
+> Todas las dependencias están fijadas a versiones exactas, así que la
+> instalación es idéntica en cualquier máquina.
 
 ### Cuentas de demostración
 
