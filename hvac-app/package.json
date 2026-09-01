@@ -7,16 +7,17 @@
     "node": ">=20.9.0"
   },
   "scripts": {
-    "postinstall": "prisma generate",
-    "predev": "prisma generate && prisma db push && node prisma/seed.mjs",
+    "postinstall": "node scripts/prepare-schema.mjs && prisma generate",
+    "predev": "node scripts/prepare-schema.mjs && prisma generate && prisma db push && node prisma/seed.mjs",
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/prepare-schema.mjs && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.mjs",
     "db:reset": "rimraf prisma/dev.db && prisma db push && npm run db:seed",
-    "setup": "prisma generate && prisma db push && npm run db:seed"
+    "setup": "node scripts/prepare-schema.mjs && prisma generate && prisma db push && npm run db:seed",
+    "vercel-build": "node scripts/prepare-schema.mjs && prisma generate && prisma db push && node prisma/seed.mjs && next build"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",

@@ -74,6 +74,45 @@ membresía activa para que el portal no se vea vacío.
 
 ---
 
+## Publicar en Vercel
+
+La aplicación funciona igual en local (SQLite) que en producción
+(PostgreSQL): `scripts/prepare-schema.mjs` detecta el motor a partir de
+`DATABASE_URL` antes de generar el cliente, así que **no hay que tocar el
+código para desplegar**.
+
+SQLite no sirve en Vercel: el disco es de solo lectura y efímero, así que
+cualquier reserva o cotización fallaría. Por eso producción usa Postgres.
+
+1. **Cree el proyecto.** En [vercel.com/new](https://vercel.com/new) importe el
+   repositorio `npm-modules`.
+2. **Root Directory: `hvac-app`.** Es el paso que más se olvida — la app vive en
+   una subcarpeta, y sin esto Vercel busca el `package.json` en la raíz y falla.
+3. **Cree la base de datos.** En la pestaña *Storage* del proyecto, añada un
+   Postgres (Neon). Vercel inyecta `DATABASE_URL` automáticamente.
+4. **Variables de entorno.** En *Settings → Environment Variables* añada:
+
+   | Variable | Valor |
+   | --- | --- |
+   | `SESSION_SECRET` | 32+ caracteres aleatorios — genérelos con `openssl rand -base64 32` |
+   | `DIRECT_URL` | Solo si `DATABASE_URL` contiene `-pooler`: la misma URL sin esa parte |
+
+   Las de la empresa (`NEXT_PUBLIC_COMPANY_*`) y las integraciones son
+   opcionales; sin ellas se usan los valores por defecto y el modo simulado.
+5. **Despliegue.** Vercel ejecuta el script `vercel-build`, que prepara el
+   esquema, lo aplica a Postgres, carga los datos de referencia y compila.
+
+`SESSION_SECRET` es obligatorio: en producción la app se niega a arrancar sin
+él, en vez de firmar sesiones con una clave conocida.
+
+### Antes de enseñársela a un cliente
+
+Las cuentas de demostración (`admin@allweather.test` / `Admin1234!`) quedan
+publicadas con contraseñas conocidas. Para una demo cerrada está bien; antes de
+usarla de verdad, bórrelas o cámbieles la contraseña desde la base de datos.
+
+---
+
 ## Qué incluye
 
 ### Para el cliente
